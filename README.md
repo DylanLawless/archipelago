@@ -67,14 +67,24 @@ archipelago_plot(df1 = df1,
 # Dev notes
 
 ## Set up
+```
 Rscript -e "usethis::create_package(getwd())"
+```
 
 ## Docs with 
+```
 Rscript -e "devtools::document()"
+```
 
 ## Build and install
+```
 Rscript -e "devtools::build()"
 Rscript -e "devtools::install()"
+```
 
 ## Install from zip in R
+```
 install.packages("/path/to/your/package/MyPackage.tar.gz", repos = NULL, type = "source")
+```
+
+![Alt Text](./images/archipelago_logo_v2.jpg)
