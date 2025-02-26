@@ -1,3 +1,66 @@
+#' Archipelago Plot
+#'
+#' Plot p-values from variant and variant-set tests.
+#'
+#' @param df1 A dataframe of variant-set data.
+#' @param df2 A dataframe of variant data.
+#' @param plot_title Title for the plot.
+#' @param add_title Logical; add title if TRUE.
+#' @param plot_subtitle Subtitle for the plot.
+#' @param add_subtitle Logical; add subtitle if TRUE.
+#' @param chr_ticks Logical; show chromosome ticks if TRUE.
+#' @param show_legend Logical; display the legend if TRUE.
+#' @param color_theme Name of the colour theme.
+#' @param custom_colors Vector of custom colours.
+#' @param color_labels Labels for the colour groups.
+#' @param crit_val Critical p-value threshold.
+#' @param point_size Size of the points.
+#' @param output_path File path for the plot.
+#' @param output_raw File path for the raw plot.
+#'
+#' @return A ggplot object.
+#'
+#' @examples
+#' \dontrun{
+#'   # Load test data for df1 and df2
+#'   data("vsat_pval")
+#'   data("variant_pval")
+#'
+#'   # Use default settings
+#'   archipelago_plot(vsat_pval, variant_pval)
+#'
+#'   # Use the 'alice' colour theme
+#'   archipelago_plot(vsat_pval, variant_pval, color_theme = "alice")
+#'
+#'   # Custom everything
+#'   output_path <- "./archipelago_plot_custom_color.pdf"
+#'   output_raw <- "./vsat_raw_plot.pdf"
+#'   color_labels <- c("Label_1", "Label_2", "Label_3", "Label_4")
+#'   custom_colors <- c("#9abfd8", "#cac1f3", "#371c4b", "#2a5b7f")
+#'   plot_title <- "Title"
+#'   plot_subtitle <- "Subtitle"
+#'   crit_val <- .05/300
+#'   point_size <- .5
+#'
+#'   archipelago_plot(
+#'     df1 = vsat_pval,
+#'     df2 = variant_pval,
+#'     add_title = TRUE,
+#'     plot_title = plot_title,
+#'     add_subtitle = TRUE,
+#'     plot_subtitle = plot_subtitle,
+#'     show_legend = TRUE,
+#'     crit_val = crit_val,
+#'     point_size = point_size,
+#'     chr_ticks = FALSE,
+#'     show_legend = TRUE,
+#'     custom_colors = custom_colors,
+#'     color_labels = color_labels,
+#'     output_path = output_path,
+#'     output_raw = output_raw
+#'   )
+#' }
+
 #' @export 
 archipelago_plot <- function(df1, df2, 
                              plot_title = "Archipelago Plot", 
@@ -21,43 +84,6 @@ archipelago_plot <- function(df1, df2,
 library(ggplot2)
 library(dplyr)
 
-# Set data ----
-# # Set seed for reproducibility
-# set.seed(123)
-# 
-# mulitpier <- 5000
-# first <- 1
-# last <- mulitpier # Number of variants
-# set_ID_max <- (mulitpier/20)
-# crit_val <- .05/set_ID_max
-# pval_max <- 1
-# pval_min1 <- .05/10
-# pval_min2 <- .05/100
-# 
-# # Sample df1: random numbers from a log-normal distribution
-# df1 <- data.frame(
-#   set_ID = seq(1, set_ID_max, by = 1),
-#   P = rlnorm(set_ID_max, meanlog = log(pval_min1), sdlog = 1.6)
-# )
-# 
-# df1$P <- -log10(df1$P)
-# 
-# # Sample df2: random from range
-# df2 <- data.frame(
-#   set_ID = rep(seq(1, set_ID_max, by = 1), each = 1),
-#   BP = sample(1:1e6, last, replace = TRUE),
-#   P = runif(last, pval_min2, pval_max),
-#   CHR = sample(1:22, last, replace = TRUE)  # Chromosome numbers 1-22
-# )
-# 
-# df2$SNP <- df2$BP # this would be required for multiallelic sites
-# 
-# write.csv(df1, file="../data/vsat_pval.txt", row.names=FALSE )
-# write.csv(df2, file="../data/variant_pval.txt", row.names=FALSE)
-
-# Bonferroni correction
-# crit_val <- .05/set_ID_max
-# Calculate crit_val from the dataset if it is NULL
 if(is.null(crit_val)) {
   set_ID_max <- df1$set_ID %>% unique() %>% length()
   crit_val <- .05/set_ID_max

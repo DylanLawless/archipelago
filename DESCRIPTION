@@ -2,11 +2,17 @@ Package: archipelago
 Title: Archipelago plot method for illustration of variant set association test statistics
 Version: 0.0.0.9000
 Authors@R: 
-    person("Dylan", "Lawless", , "first.last@epfl.ch", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+    person("Dylan", "Lawless", , "dylan.lawless@protonmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "https://orcid.org/0000-0001-8496-3725"))
 Description: Archipelago plot, a graphical method for interpreting both VSAT p-values and individual variant contributions. The Archipelago method assigns a meaningful genomic coordinate to the VSAT p- value, enabling its simultaneous visualization alongside individual variant p-values. This results in an intuitive and rich illustration akin to an archipelago of clustered islands, enhancing the understanding of both collective and individual impacts of variants. The Archipelago plot is applicable in any genetic association study that uses variant collapse to evaluate both individual variants and variant sets, and its customizability facilitates clear communication of complex genetic data. By integrating two dimensions of genetic data into a single visualization, VSAT results can be easily read and aid in identification of potential causal variants in variant sets such as protein pathways.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
+Imports:
+    ggplot2,
+    dplyr
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.2
+RoxygenNote: 7.3.2
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
