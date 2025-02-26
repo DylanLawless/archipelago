@@ -85,4 +85,8 @@ Rscript -e "devtools::install()"
 install.packages("/path/to/your/package/MyPackage.tar.gz", repos = NULL, type = "source")
 ```
 
+## Example of set ID
+
+An example of the protein pathway set IDs can be found at <https://github.com/DylanLawless/ProteoMCLustR/tree/main/data/ppi_examples> where we have a numeric pathway ID for each ensemble gene name, using MCL clustering on STRINGdb.
+
 ![Logo image](./images/archipelago_logo_v2.jpg)

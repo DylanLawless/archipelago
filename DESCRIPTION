@@ -8,6 +8,7 @@ Description: Archipelago plot, a graphical method for interpreting both VSAT p-v
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
+Language: en-US
 Imports:
     ggplot2,
     dplyr
