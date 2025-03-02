@@ -1,6 +1,6 @@
 Package: archipelago
 Title: Archipelago plot method for illustration of variant set association test statistics
-Version: 0.0.0.9000
+Version: 0.0.1.9000
 Authors@R: 
     person("Dylan", "Lawless", , "dylan.lawless@protonmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "https://orcid.org/0000-0001-8496-3725"))
@@ -17,3 +17,6 @@ RoxygenNote: 7.3.2
 Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Depends: 
+    R (>= 2.10)
+LazyData: true

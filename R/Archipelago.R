@@ -15,53 +15,69 @@
 #' @param color_labels Labels for the colour groups.
 #' @param crit_val Critical p-value threshold.
 #' @param point_size Size of the points.
+#' @param point_size_large Size of the large points of interest such as VSAT.
+#' @param fig_width Width of the archipelago plot.
+#' @param fig_height Height of the archipelago plot.
+#' @param raw_fig_width Width of the raw plot.
+#' @param raw_fig_height Height of the raw plot.
 #' @param output_path File path for the plot.
 #' @param output_raw File path for the raw plot.
-#'
+#' @param file_type Use .png, .jpg, or .pdf. Defaults to png. pdf is slow and large for many SNPs.
+#' @param alpha_point Use the alpha_point value to set point transparency. 
+#' @param alpha_seg Use the alpha_segvalue to set line segment transparency. 
+#' @param better_space Use better_space = TRUE to make sure that x-axis chr do not squash. 
+#' @param legend_position Default right, allows bottom top left right.
+#' 
 #' @return A ggplot object.
 #'
 #' @examples
 #' \dontrun{
-#'   # Load test data for df1 and df2
-#'   data("vsat_pval")
-#'   data("variant_pval")
+#'   # Load example data for df1 (VSAT) and df2 (individual variant)
+#'   data("vsat_pval")         # same structure as df1
+#'   data("variant_pval")      # same structure as df2
 #'
-#'   # Use default settings
-#'   archipelago_plot(vsat_pval, variant_pval)
+#'   # Basic usage with defaults
+#'   archipelago_plot(
+#'     df1 = vsat_pval,
+#'     df2 = variant_pval
+#'   )
 #'
-#'   # Use the 'alice' colour theme
-#'   archipelago_plot(vsat_pval, variant_pval, color_theme = "alice")
+#'   # Specify a built-in colour theme
+#'   archipelago_plot(
+#'     df1 = vsat_pval,
+#'     df2 = variant_pval,
+#'     color_theme = "alice"
+#'   )
 #'
-#'   # Custom everything
+#'   # More customised usage
 #'   output_path <- "./archipelago_plot_custom_color.pdf"
 #'   output_raw <- "./vsat_raw_plot.pdf"
 #'   color_labels <- c("Label_1", "Label_2", "Label_3", "Label_4")
 #'   custom_colors <- c("#9abfd8", "#cac1f3", "#371c4b", "#2a5b7f")
-#'   plot_title <- "Title"
-#'   plot_subtitle <- "Subtitle"
-#'   crit_val <- .05/300
-#'   point_size <- .5
 #'
 #'   archipelago_plot(
 #'     df1 = vsat_pval,
 #'     df2 = variant_pval,
 #'     add_title = TRUE,
-#'     plot_title = plot_title,
+#'     plot_title = "My Archipelago Plot",
 #'     add_subtitle = TRUE,
-#'     plot_subtitle = plot_subtitle,
+#'     plot_subtitle = "VSAT vs Single Variant",
 #'     show_legend = TRUE,
-#'     crit_val = crit_val,
-#'     point_size = point_size,
 #'     chr_ticks = FALSE,
-#'     show_legend = TRUE,
+#'     point_size = 0.5,
+#'     color_theme = NULL,         # ignore built-in theme
 #'     custom_colors = custom_colors,
 #'     color_labels = color_labels,
-#'     output_path = output_path,
-#'     output_raw = output_raw
+#'     crit_val_VSAT = 0.05 / 300, # for highlighting VSAT p-values
+#'     crit_val_single_variant = 5e-8, # typical single-variant threshold
+#'     output_path = output_path, 
+#'     output_raw = output_raw,   
+#'     file_type = "pdf"          # save as PDF instead of PNG
 #'   )
 #' }
 
-#' @export 
+#' @export
+
 archipelago_plot <- function(df1, df2, 
                              plot_title = "Archipelago Plot", 
                              add_title = FALSE,
@@ -72,23 +88,63 @@ archipelago_plot <- function(df1, df2,
                              color_theme = NULL,
                              custom_colors = NULL,
                              color_labels = c("Chr: Individual p-val", "Chr: Individual p-val" ,"Individual variant\nfrom enriched VSAT","VSAT p-val"),
-                             crit_val = NULL,
+                             crit_val_VSAT = NULL,
+                             crit_val_single_variant = NULL,
                              point_size = 1,
-                             output_path = "archipelago_plot.pdf",
-                             output_raw = "vsat_raw_plot.pdf"
+                             point_size_large = 1,
+                             fig_width = 8,
+                             fig_height = 4,
+                             raw_fig_width = 8,
+                             raw_fig_height = 4,
+                             output_path = "archipelago_plot",
+                             output_raw = "archipelago_vsat_raw_plot",
+                             file_type = "png",
+                             alpha_point = 1,
+                             alpha_seg = 0.3,
+                             better_space = FALSE,
+                             legend_position = "right"
                              ) {
 
-
-    
-    
 library(ggplot2)
 library(dplyr)
 
-if(is.null(crit_val)) {
-  set_ID_max <- df1$set_ID %>% unique() %>% length()
-  crit_val <- .05/set_ID_max
+print("Input df1 is for VSAT: set_ID and P")
+print("Input df2 is for SNP: set_ID, BP, P, CHR, SNP")
+
+
+if (!"P" %in% colnames(df1) || nrow(df1) < 1) {
+  stop("df1 does not have a 'P' column or is empty.")
+}
+if (!"P" %in% colnames(df2) || nrow(df2) < 1) {
+  stop("df2 does not have a 'P' column or is empty.")
 }
 
+# Ensure P columns are numeric
+df1$P <- as.numeric(df1$P)
+df2$P <- as.numeric(df2$P)
+
+
+# The example data was from plink and skat. It was then saved to Rdata with
+# write.csv(df1, file = "vsat_pval.csv", row.names = FALSE)
+# save(vsat_pval, file = "vsat_pval.RData")
+# alternative: usethis::use_data(vsat_pval, overwrite = TRUE)
+
+# if(is.null(crit_val)) {
+#   set_ID_max <- df1$set_ID %>% unique() %>% length()
+#   crit_val <- .05/set_ID_max
+# }
+
+if(is.null(crit_val_VSAT)) {
+    set_ID_max <- df1$set_ID %>% unique() %>% length()
+    crit_val_VSAT <- .05/set_ID_max
+  }
+
+if(is.null(crit_val_single_variant)) {
+  set_ID_max <- df2$BP %>% unique() %>% length()
+  crit_val_single_variant <- .05/set_ID_max
+}
+
+df1$P <- -log10(df1$P)
 df2$P <- -log10(df2$P)
 df2 <- df2[order(df2$CHR, df2$BP), ]
 df2$index=NA
@@ -119,6 +175,28 @@ ticks <-tapply(df2$pos,df2$index,quantile,probs=0.5)
 xlabel = 'Chromosome'
 labs <- unique(df2$CHR)
 
+# This function prevents the chromosome ticks from squashing and overlapping. It uses the largest chr to space all others while keeping the structure. 
+if (better_space) {
+  # Find the maximum BP range across all chromosomes
+  max_width <- df2 %>%
+    group_by(CHR) %>%
+    summarise(width = max(BP) - min(BP)) %>%
+    ungroup() %>%
+    summarise(max_width = max(width)) %>%
+    pull(max_width)
+  
+  # Scale each chromosome's positions so that they span max_width and add a cumulative offset
+  df2 <- df2 %>%
+    group_by(CHR) %>%
+    arrange(BP) %>%
+    mutate(new_pos_in_chr = (BP - min(BP)) / (max(BP) - min(BP)) * max_width) %>%
+    ungroup() %>%
+    mutate(CHR_order = as.numeric(factor(CHR, levels = sort(unique(CHR)))),
+           new_pos = new_pos_in_chr + (CHR_order - 1) * max_width)
+  
+  df2$pos <- df2$new_pos
+}
+
 # Merging df1 and df2
 merged_df <- bind_rows(df1, df2)
 
@@ -129,7 +207,7 @@ merged_df$metric <- ifelse(is.na(merged_df$BP), "variant_set", "variant")
 pos_sum <- aggregate(merged_df$pos, by=list(merged_df$set_ID), FUN=sum, na.rm=TRUE)
 
 # Rank set_ID by the sum of locations
-pos_sum$rank <- rank(pos_sum$x) 
+pos_sum$rank <- rank(pos_sum$x)
 
 # Calculate the average location within each set_ID group from the original dataframe
 average_pos <- aggregate(merged_df$pos, by=list(merged_df$set_ID), FUN=mean, na.rm=TRUE)
@@ -160,7 +238,7 @@ merged_df <- merged_df %>%
                       variant_set_sorted$pos[match(set_ID, variant_set_sorted$set_ID)],
                       pos))
 
-# The previous 4 code chunks constructs a natural spread of positions for "variant_set". However, their positions are distributioned slightly atrificially to give a more even distribution in their true odeder. This is ideal for a dense network. If you have [1] a less dense network, [2] don't mind high-density clustiner at the genome center, [3] want to see the less dispersed distribution, just uncomment the next chuck to override the previous distribution version. 
+# The previous 4 code chunks constructs a natural spread of positions for "variant_set". However, their positions are distributioned slightly atrificially to give a more even distribution in their true odeder. This is ideal for a dense network. If you have [1] a less dense network, [2] don't mind high-density clustiner at the genome center, [3] want to see the less dispersed distribution, just uncomment the next chuck to override the previous distribution version.
 
 # merged_df$pos <- ifelse(merged_df$metric == "variant_set",
 # 								(merged_df$pos - min(merged_df$pos[merged_df$metric == "variant_set"])) /
@@ -176,6 +254,12 @@ chromosome_ticks <- merged_df %>%
   filter(metric == "variant") %>%
   group_by(CHR) %>%
   summarise(mid_point = mean(pos))
+
+# # Instead of using mean(pos) for chromosome_ticks, use the midpoint of the range of positions:
+# chromosome_ticks <- merged_df %>%
+#   filter(metric == "variant") %>%
+#   group_by(CHR) %>%
+#   summarise(mid_point = (min(pos) + max(pos)) / 2)
 
 # Split the data into variant_set and variant datasets
 variant_set_data <- merged_df %>% filter(metric == "variant_set")
@@ -195,7 +279,7 @@ p_raw <-
   geom_point(aes(x = rank, y = P), color='#27afea', size = point_size) +
   ylab("-log10 (p-value)") +
   geom_hline(linetype="dotted", 
-             yintercept=-log10(crit_val)) +
+             yintercept=-log10(crit_val_VSAT)) +
   theme_bw() +
   ggtitle("Raw VSAT p-value") + 
   theme(panel.grid.major = element_blank(),
@@ -205,21 +289,28 @@ p_raw <-
         plot.margin = margin(10, 10, 10, 10, "pt")) +
   guides(color = "none") 
 p_raw
-ggsave(p_raw, filename = output_raw, width = 6, height = 4)
+ggsave(p_raw, filename = output_raw, width = raw_fig_width, height = raw_fig_height, device = file_type)
 
 # Plot 2 ----
 # Highlight individual variant contributions 
 # Create a new variable 'color_condition' that checks the condition
+
+# Step 1: Identify all set_ID groups where the metric is "variant_set" and P > -log10(crit_val_VSAT)
+set_IDs_to_color <- merged_df %>%
+  filter(metric == "variant_set", P > -log10(crit_val_VSAT)) %>%
+  pull(set_ID)
+
+# Step 2: Assign "condition_met" to "variant" points within those groups
 merged_df <- 
   merged_df %>%
-  group_by(set_ID) %>%
   mutate(color_condition = 
-           ifelse(any(P > -log10(crit_val)) & metric == "variant", 
+           ifelse(metric == "variant" & set_ID %in% set_IDs_to_color, 
                   "condition_met", 
                   color_group))
 
 # Change the alpha variable accordingly
 merged_df$alpha <- ifelse(merged_df$color_condition == "condition_met", 1, ifelse(merged_df$metric == "variant_set", 1, 0.3))
+
 
 # Plot 4 ----
 # Clearer condition_met layer
@@ -258,19 +349,30 @@ if (!missing(custom_colors)) {
 }
 
 
+# Create a data frame with only the "variant_set" points
+variant_set_points <- merged_df[merged_df$metric == "variant_set", ]
+
 p_arch_leg <- 
   ggplot() +
+  # Adding points where color_condition is not "condition_met"
   geom_point(data = merged_df[merged_df$color_condition != "condition_met", ], 
-             aes(x = pos, y = P, color = color_condition), size = point_size) +
+             aes(x = pos, y = P, color = color_condition), size = point_size, alpha = alpha_point) +
+  # Adding lines
   geom_segment(data = condition_met_lines, 
-               aes(x = pos_variant_set, xend = pos_variant, y = P_variant_set, yend = P_variant), alpha = 0.3) +
+               aes(x = pos_variant_set, xend = pos_variant, y = P_variant_set, yend = P_variant), alpha = alpha_seg) +
+  # Adding points where metric is "variant_set", always on top of SNP
+  geom_point(data = variant_set_points, 
+             aes(x = pos, y = P, color = color_condition), size = point_size_large, alpha = alpha_point) +
+  # Adding points where color_condition is "condition_met"
   geom_point(data = condition_met_points, 
-             aes(x = pos, y = P, color = color_condition), size = point_size, alpha = 1) +
-  scale_color_manual(values = colors, 
+             aes(x = pos, y = P, color = color_condition), size = point_size, alpha = alpha_point) +
+   scale_color_manual(values = colors, 
                      labels= color_labels) +
   ylab("-log10 (p-value)") +
   theme_bw() +
-  theme(panel.grid.major = element_blank(),
+  labs(colour = "P value") +
+  theme(legend.position = legend_position,
+    panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
         axis.line = element_line(color = "black"),
@@ -297,73 +399,42 @@ if (!show_legend) {
 }
 
 # Set critical p-val line
-if (!is.null(crit_val)) {
-  p_arch_leg <- p_arch_leg + geom_hline(linetype="dotted", yintercept=-log10(crit_val))
+if (!is.null(crit_val_VSAT)) {
+  p_arch_leg <- p_arch_leg + 
+    geom_hline(linetype="dotted", color = "#135775",
+               yintercept=-log10(crit_val_VSAT)) +
+    geom_hline(linetype="dotted", color = "#f6a192",
+               yintercept=-log10(crit_val_single_variant))
+  
 }
 
+# label each p-val line
+if (!is.null(crit_val_VSAT)) {
+  p_arch_leg <- p_arch_leg + 
+    geom_text(aes(x = max(merged_df$pos), y = (-log10(crit_val_VSAT)+0.3), 
+                  label = "VSAT\nthreshold"), hjust = 1.2) +
+    geom_text(aes(x = max(merged_df$pos), y = (-log10(crit_val_single_variant)+0.3), 
+                  label = "single-variant\nthreshold"), hjust = 1.2)
+}
 
 p_arch_leg
-ggsave(p_arch_leg, filename = output_path, width = 8, height = 4)
+ggsave(p_arch_leg, filename = output_path, width = fig_width, height = fig_height, device = file_type)
+
 
 # return the final plot
 return(p_arch_leg)
 }
 
-# # Import user data
-# df1 <- read.csv(file="../data/vsat_pval.txt")
-# df2 <- read.csv(file="../data/variant_pval.txt")
-# save(df1, file = "../data/vsat_pval.RData")
-# save(df2, file = "../data/variant_pval.RData")
+
+# library(patchwork)
+# # patch1 <- (p_arch_leg / p_raw)
+# patch1 <- (p_arch_leg | p_raw) + plot_annotation(tag_levels = 'A')
 # 
-# # Use default settings
-# archipelago_plot(df1, df2)
+# ggsave(patch1, filename = output_patch_jpg, width = 14, height = 9)
 # 
-# # 16 color themes:
-# # 'retro', 'metro', 'summer', 'messenger', 'sunset', 'alice', 'buckley', 'romance', 'meme', 'saiko', 'pagliacci', 'ambush', 'sunra', 'caliber', 'yawn', 'lawless'
-# output_path = "./archipelago_plot_custom_color.pdf"
-# output_raw = "./vsat_raw_plot.pdf"
-# archipelago_plot(df1,
-#                  df2,
-#                  color_theme = 'alice',
-#                  output_path = output_path)
-# 
-# # Custom everything
-# color_labels <- c("Label_1", "Label_2" ,"Label_3","Label_4")
-# custom_colors = c("#9abfd8", "#cac1f3", "#371c4b", "#2a5b7f") # buckley theme colors
-# plot_title <- "Title"
-# plot_subtitle <- "Subtitle"
-# crit_val = .05/300 # P-value threshold line
-# point_size = .5 # geom_point size
-# output_path = "../output/archipelago_plot_custom_everything.pdf"
-# archipelago_plot(df1 = df1,
-#                  d = df2,
-#                  add_title = TRUE,
-#                  plot_title = plot_title,
-#                  add_subtitle = TRUE,
-#                  plot_subtitle = plot_subtitle,
-#                  show_legend = TRUE,
-#                  crit_val = crit_val,
-#                  point_size = point_size,
-#                  chr_ticks <- FALSE, # TRUE / FALSE
-#                  show_legend <- TRUE, # TRUE / FALSE
-#                  custom_colors = custom_colors,
-#                  color_labels = color_labels,
-#                  output_path = output_path
-#                  )
-# 
-# 
-# # Print every color theme plot for manual
-# # List of color themes
-# color_themes <- c('retro', 'metro', 'summer', 'messenger', 'sunset', 'alice', 'buckley', 'romance', 'meme', 'saiko', 'pagliacci', 'ambush', 'sunra', 'caliber', 'yawn', 'lawless')
-# 
-# # Loop over each color theme
-# for (color_theme in color_themes) {
-#   # Define output path
-#   output_path <- paste0("../output/archipelago_plot_", color_theme, ".pdf")
-#   # Generate and save plot
-#   archipelago_plot(df1,
-#                    df2,
-#                    color_theme = color_theme,
-#                    output_path = output_path,
-#                    show_legend = FALSE)
+# # return the final plot
+# return(p_arch_leg)
 # }
+# 
+# # archipelago_plot(df1, df2)
+# archipelago_plot(df1, df2_ready)

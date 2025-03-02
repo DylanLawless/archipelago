@@ -18,10 +18,21 @@ archipelago_plot(
   custom_colors = NULL,
   color_labels = c("Chr: Individual p-val", "Chr: Individual p-val",
     "Individual variant\\nfrom enriched VSAT", "VSAT p-val"),
-  crit_val = NULL,
+  crit_val_VSAT = NULL,
+  crit_val_single_variant = NULL,
   point_size = 1,
-  output_path = "archipelago_plot.pdf",
-  output_raw = "vsat_raw_plot.pdf"
+  point_size_large = 1,
+  fig_width = 8,
+  fig_height = 4,
+  raw_fig_width = 8,
+  raw_fig_height = 4,
+  output_path = "archipelago_plot",
+  output_raw = "archipelago_vsat_raw_plot",
+  file_type = "png",
+  alpha_point = 1,
+  alpha_seg = 0.3,
+  better_space = FALSE,
+  legend_position = "right"
 )
 }
 \arguments{
@@ -47,13 +58,33 @@ archipelago_plot(
 
 \item{color_labels}{Labels for the colour groups.}
 
-\item{crit_val}{Critical p-value threshold.}
-
 \item{point_size}{Size of the points.}
+
+\item{point_size_large}{Size of the large points of interest such as VSAT.}
+
+\item{fig_width}{Width of the archipelago plot.}
+
+\item{fig_height}{Height of the archipelago plot.}
+
+\item{raw_fig_width}{Width of the raw plot.}
+
+\item{raw_fig_height}{Height of the raw plot.}
 
 \item{output_path}{File path for the plot.}
 
 \item{output_raw}{File path for the raw plot.}
+
+\item{file_type}{Use .png, .jpg, or .pdf. Defaults to png. pdf is slow and large for many SNPs.}
+
+\item{alpha_point}{Use the alpha_point value to set point transparency.}
+
+\item{alpha_seg}{Use the alpha_segvalue to set line segment transparency.}
+
+\item{better_space}{Use better_space = TRUE to make sure that x-axis chr do not squash.}
+
+\item{legend_position}{Default right, allows bottom top left right.}
+
+\item{crit_val}{Critical p-value threshold.}
 }
 \value{
 A ggplot object.
@@ -63,42 +94,47 @@ Plot p-values from variant and variant-set tests.
 }
 \examples{
 \dontrun{
-  # Load test data for df1 and df2
-  data("vsat_pval")
-  data("variant_pval")
+  # Load example data for df1 (VSAT) and df2 (individual variant)
+  data("vsat_pval")         # same structure as df1
+  data("variant_pval")      # same structure as df2
 
-  # Use default settings
-  archipelago_plot(vsat_pval, variant_pval)
+  # Basic usage with defaults
+  archipelago_plot(
+    df1 = vsat_pval,
+    df2 = variant_pval
+  )
 
-  # Use the 'alice' colour theme
-  archipelago_plot(vsat_pval, variant_pval, color_theme = "alice")
+  # Specify a built-in colour theme
+  archipelago_plot(
+    df1 = vsat_pval,
+    df2 = variant_pval,
+    color_theme = "alice"
+  )
 
-  # Custom everything
+  # More customised usage
   output_path <- "./archipelago_plot_custom_color.pdf"
   output_raw <- "./vsat_raw_plot.pdf"
   color_labels <- c("Label_1", "Label_2", "Label_3", "Label_4")
   custom_colors <- c("#9abfd8", "#cac1f3", "#371c4b", "#2a5b7f")
-  plot_title <- "Title"
-  plot_subtitle <- "Subtitle"
-  crit_val <- .05/300
-  point_size <- .5
 
   archipelago_plot(
     df1 = vsat_pval,
     df2 = variant_pval,
     add_title = TRUE,
-    plot_title = plot_title,
+    plot_title = "My Archipelago Plot",
     add_subtitle = TRUE,
-    plot_subtitle = plot_subtitle,
+    plot_subtitle = "VSAT vs Single Variant",
     show_legend = TRUE,
-    crit_val = crit_val,
-    point_size = point_size,
     chr_ticks = FALSE,
-    show_legend = TRUE,
+    point_size = 0.5,
+    color_theme = NULL,         # ignore built-in theme
     custom_colors = custom_colors,
     color_labels = color_labels,
-    output_path = output_path,
-    output_raw = output_raw
+    crit_val_VSAT = 0.05 / 300, # for highlighting VSAT p-values
+    crit_val_single_variant = 5e-8, # typical single-variant threshold
+    output_path = output_path, 
+    output_raw = output_raw,   
+    file_type = "pdf"          # save as PDF instead of PNG
   )
 }
 }

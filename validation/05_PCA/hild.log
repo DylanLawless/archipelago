@@ -1,0 +1,16 @@
+PLINK v1.9.0-b.7.7 64-bit (22 Oct 2024)
+Options in effect:
+  --bfile ../04_Data_QC/sample_data.clean
+  --make-set high-ld-hg19.txt
+  --out hild
+  --write-set
+
+Hostname: Akira.local
+Working directory: /Users/dylanlawless/web/archipelago/validation/src/05_PCA
+Start time: Fri Feb 28 15:47:42 2025
+
+Random number seed: 1740754062
+16384 MB RAM detected; reserving 8192 MB for main workspace.
+Error: Failed to open ../04_Data_QC/sample_data.clean.bed.
+
+End time: Fri Feb 28 15:47:42 2025

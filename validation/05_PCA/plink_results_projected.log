@@ -1,0 +1,20 @@
+PLINK v2.0.0-a.6.9 64-bit (29 Jan 2025)
+Options in effect:
+  --bfile ../04_Data_QC/sample_data.clean
+  --out plink_results_projected
+  --read-freq plink_results.acount
+  --score plink_results.eigenvec.allele 2 6 header-read no-mean-imputation variance-standardize
+  --score-col-nums 7-16
+  --threads 2
+
+Hostname: Akira.local
+Working directory: /Users/dylanlawless/web/archipelago/validation/src/05_PCA
+Start time: Fri Feb 28 15:47:42 2025
+
+Random number seed: 1740754062
+16384 MiB RAM detected; reserving 8192 MiB for main workspace.
+Using up to 2 compute threads.
+Error: Failed to open ../04_Data_QC/sample_data.clean.fam : No such file or
+directory.
+
+End time: Fri Feb 28 15:47:42 2025
