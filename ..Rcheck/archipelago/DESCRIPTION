@@ -1,5 +1,6 @@
 Package: archipelago
-Title: Archipelago plot method for illustration of variant set association test statistics
+Title: Archipelago plot method for illustration of variant set
+        association test statistics
 Version: 0.1.9000
 Authors@R: person("Dylan", "Lawless", email = "dylan.lawless@protonmail.com", role = c("aut", "cre"), comment = c(ORCID = "https://orcid.org/0000-0001-8496-3725"))
 Author: Dylan Lawless [aut, cre] (<https://orcid.org/0000-0001-8496-3725>)
@@ -8,14 +9,11 @@ Description: Archipelago plot, a graphical method for interpreting both VSAT p-v
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: en-US
-Imports:
-    ggplot2,
-    dplyr
+Imports: ggplot2, dplyr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Suggests:
-    testthat (>= 3.0.0)
+Suggests: testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Depends: 
-    R (>= 2.10)
+Depends: R (>= 2.10)
 LazyData: true
+Built: R 4.4.0; ; 2025-05-09 15:51:26 UTC; unix

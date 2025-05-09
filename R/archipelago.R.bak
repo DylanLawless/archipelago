@@ -2,7 +2,6 @@
 #'
 #' Plot p-values from variant and variant-set tests.
 #'
-#' @name archipelago_plot
 #' @param df1 A dataframe of variant-set data.
 #' @param df2 A dataframe of variant data.
 #' @param plot_title Title for the plot.
@@ -28,7 +27,7 @@
 #' @param alpha_seg Use the alpha_segvalue to set line segment transparency. 
 #' @param better_space Use better_space = TRUE to make sure that x-axis chr do not squash. 
 #' @param legend_position Default right, allows bottom top left right.
-#'
+#' 
 #' @return A ggplot object.
 #'
 #' @examples
@@ -76,13 +75,7 @@
 #'     file_type = "pdf"          # save as PDF instead of PNG
 #'   )
 #' }
-utils::globalVariables(c(
-  "aes", "color_group", "metric", "CHR", "BP", "width",
-  "new_pos_in_chr", "CHR_order", "pos", "set_ID", "P",
-  "color_condition", "pos_variant_set", "pos_variant",
-  "P_variant_set", "P_variant", "quantile"
-))
-#'
+
 #' @export
 
 archipelago_plot <- function(df1, df2, 
@@ -112,8 +105,8 @@ archipelago_plot <- function(df1, df2,
                              legend_position = "right"
                              ) {
 
-# library(ggplot2)
-# library(dplyr)
+library(ggplot2)
+library(dplyr)
 
   # Output file naming
   if (!grepl(paste0("\\.", file_type, "$"), output_raw)) {
@@ -147,17 +140,17 @@ df2$P <- as.numeric(df2$P)
 # alternative: usethis::use_data(vsat_pval, overwrite = TRUE)
 
 # if(is.null(crit_val)) {
-#   set_ID_max <- df1$set_ID |> unique() |> length()
+#   set_ID_max <- df1$set_ID %>% unique() %>% length()
 #   crit_val <- .05/set_ID_max
 # }
 
 if(is.null(crit_val_VSAT)) {
-    set_ID_max <- df1$set_ID |> unique() |> length()
+    set_ID_max <- df1$set_ID %>% unique() %>% length()
     crit_val_VSAT <- .05/set_ID_max
   }
 
 if(is.null(crit_val_single_variant)) {
-  set_ID_max <- df2$BP |> unique() |> length()
+  set_ID_max <- df2$BP %>% unique() %>% length()
   crit_val_single_variant <- .05/set_ID_max
 }
 
@@ -195,19 +188,19 @@ labs <- unique(df2$CHR)
 # This function prevents the chromosome ticks from squashing and overlapping. It uses the largest chr to space all others while keeping the structure. 
 if (better_space) {
   # Find the maximum BP range across all chromosomes
-  max_width <- df2 |>
-    dplyr::group_by(CHR) |>
-    dplyr::summarise(width = max(BP) - min(BP)) |>
-    dplyr::ungroup() |>
-    dplyr::summarise(max_width = max(width)) |>
+  max_width <- df2 %>%
+    dplyr::group_by(CHR) %>%
+    dplyr::summarise(width = max(BP) - min(BP)) %>%
+    dplyr::ungroup() %>%
+    dplyr::summarise(max_width = max(width)) %>%
     dplyr::pull(max_width)
   
   # Scale each chromosome's positions so that they span max_width and add a cumulative offset
-  df2 <- df2 |>
-    dplyr::group_by(CHR) |>
-    dplyr::arrange(BP) |>
-    dplyr::mutate(new_pos_in_chr = (BP - min(BP)) / (max(BP) - min(BP)) * max_width) |>
-    dplyr::ungroup() |>
+  df2 <- df2 %>%
+    dplyr::group_by(CHR) %>%
+    dplyr::arrange(BP) %>%
+    dplyr::mutate(new_pos_in_chr = (BP - min(BP)) / (max(BP) - min(BP)) * max_width) %>%
+    dplyr::ungroup() %>%
     dplyr::mutate(CHR_order = as.numeric(factor(CHR, levels = sort(unique(CHR)))),
            new_pos = new_pos_in_chr + (CHR_order - 1) * max_width)
   
@@ -237,8 +230,8 @@ merged_df$grouping <- with(merged_df, ave(pos, set_ID, FUN = function(x) cumsum(
 
 # Get a simple ordered distribution of variant_set p value positions for the x-axis
 # sort the "variant_set" group by "pos"
-variant_set_sorted <- merged_df |>
-  dplyr::filter(metric == "variant_set") |>
+variant_set_sorted <- merged_df %>%
+  dplyr::filter(metric == "variant_set") %>%
   dplyr::arrange(pos)
 
 # create a sequence of evenly spaced numbers across the range of all "pos" values
@@ -250,7 +243,7 @@ even_pos <- seq(from = min(merged_df$pos),
 variant_set_sorted$pos <- even_pos
 
 # replace the "pos" values in the original dataframe with these new evenly spaced numbers
-merged_df <- merged_df |>
+merged_df <- merged_df %>%
   dplyr::mutate(pos = ifelse(metric == "variant_set",
                       variant_set_sorted$pos[match(set_ID, variant_set_sorted$set_ID)],
                       pos))
@@ -267,60 +260,59 @@ merged_df$color_group <- ifelse(merged_df$metric == "variant_set", "variant_set"
                                 ifelse(merged_df$CHR %% 2 == 0, "Chr_B", "Chr_A"))
 
 # Create a dataframe with the mid-point of each chromosome
-chromosome_ticks <- merged_df |>
-  dplyr::filter(metric == "variant") |>
-  dplyr::group_by(CHR) |>
+chromosome_ticks <- merged_df %>%
+  dplyr::filter(metric == "variant") %>%
+  dplyr::group_by(CHR) %>%
   dplyr::summarise(mid_point = mean(pos))
 
 # # Instead of using mean(pos) for chromosome_ticks, use the midpoint of the range of positions:
-# chromosome_ticks <- merged_df |>
-#   dplyr::filter(metric == "variant") |>
-#   dplyr::group_by(CHR) |>
+# chromosome_ticks <- merged_df %>%
+#   dplyr::filter(metric == "variant") %>%
+#   dplyr::group_by(CHR) %>%
 #   dplyr::summarise(mid_point = (min(pos) + max(pos)) / 2)
 
 # Split the data into variant_set and variant datasets
-variant_set_data <- merged_df |> dplyr::filter(metric == "variant_set")
-variant_data <- merged_df |> dplyr::filter(metric == "variant")
+variant_set_data <- merged_df %>% dplyr::filter(metric == "variant_set")
+variant_data <- merged_df %>% dplyr::filter(metric == "variant")
 
 # Join the datasets to create a line dataset
 line_data <- dplyr::left_join(variant_data, variant_set_data, by = "set_ID", suffix = c("_variant", "_variant_set"))
 
 # Raw plot ----
-raw <- merged_df |> 
+raw <- merged_df %>% 
   dplyr::filter(metric == "variant_set")
 raw$rank <- rank(raw$P)
 
 p_raw <- 
-  raw |>
+  raw %>%
   ggplot2::ggplot() +
-  ggplot2::geom_point(
-    ggplot2::aes(x = rank, y = P), color='#27afea', size = point_size) +
-  ggplot2::ylab("-log10 (p-value)") +
-  ggplot2::geom_hline(linetype="dotted", 
+  geom_point(aes(x = rank, y = P), color='#27afea', size = point_size) +
+  ylab("-log10 (p-value)") +
+  geom_hline(linetype="dotted", 
              yintercept=-log10(crit_val_VSAT)) +
-  ggplot2::theme_bw() +
-  ggplot2::ggtitle("Raw VSAT p-value") + 
-  ggplot2::theme(panel.grid.major = ggplot2::element_blank(),
-        panel.grid.minor = ggplot2::element_blank(),
-        panel.border = ggplot2::element_blank(),
-        axis.line = ggplot2::element_line(color = "black"),
-        plot.margin = ggplot2::margin(10, 10, 10, 10, "pt")) +
-  ggplot2::guides(color = "none") 
+  theme_bw() +
+  ggtitle("Raw VSAT p-value") + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        axis.line = element_line(color = "black"),
+        plot.margin = margin(10, 10, 10, 10, "pt")) +
+  guides(color = "none") 
 p_raw
-ggplot2::ggsave(p_raw, filename = output_raw, width = raw_fig_width, height = raw_fig_height, device = file_type)
+ggsave(p_raw, filename = output_raw, width = raw_fig_width, height = raw_fig_height, device = file_type)
 
 # Plot 2 ----
 # Highlight individual variant contributions 
 # Create a new variable 'color_condition' that checks the condition
 
 # Step 1: Identify all set_ID groups where the metric is "variant_set" and P > -log10(crit_val_VSAT)
-set_IDs_to_color <- merged_df |>
-  dplyr::filter(metric == "variant_set", P > -log10(crit_val_VSAT)) |>
+set_IDs_to_color <- merged_df %>%
+  dplyr::filter(metric == "variant_set", P > -log10(crit_val_VSAT)) %>%
   dplyr::pull(set_ID)
 
 # Step 2: Assign "condition_met" to "variant" points within those groups
 merged_df <- 
-  merged_df |>
+  merged_df %>%
   dplyr::mutate(color_condition = 
            ifelse(metric == "variant" & set_ID %in% set_IDs_to_color, 
                   "condition_met", 
@@ -373,55 +365,55 @@ variant_set_points <- merged_df[merged_df$metric == "variant_set", ]
 p_arch_leg <- 
   ggplot2::ggplot() +
   # Adding points where color_condition is not "condition_met"
-  ggplot2::geom_point(data = merged_df[merged_df$color_condition != "condition_met", ], 
-             ggplot2::aes(x = pos, y = P, color = color_condition), size = point_size, alpha = alpha_point) +
+  geom_point(data = merged_df[merged_df$color_condition != "condition_met", ], 
+             aes(x = pos, y = P, color = color_condition), size = point_size, alpha = alpha_point) +
   # Adding lines
-  ggplot2::geom_segment(data = condition_met_lines, 
-               ggplot2::aes(x = pos_variant_set, xend = pos_variant, y = P_variant_set, yend = P_variant), alpha = alpha_seg) +
+  geom_segment(data = condition_met_lines, 
+               aes(x = pos_variant_set, xend = pos_variant, y = P_variant_set, yend = P_variant), alpha = alpha_seg) +
   # Adding points where metric is "variant_set", always on top of SNP
-  ggplot2::geom_point(data = variant_set_points, 
-             ggplot2::aes(x = pos, y = P, color = color_condition), size = point_size_large, alpha = alpha_point) +
+  geom_point(data = variant_set_points, 
+             aes(x = pos, y = P, color = color_condition), size = point_size_large, alpha = alpha_point) +
   # Adding points where color_condition is "condition_met"
-  ggplot2::geom_point(data = condition_met_points, 
-             ggplot2::aes(x = pos, y = P, color = color_condition), size = point_size, alpha = alpha_point) +
-   ggplot2::scale_color_manual(values = colors, 
+  geom_point(data = condition_met_points, 
+             aes(x = pos, y = P, color = color_condition), size = point_size, alpha = alpha_point) +
+   scale_color_manual(values = colors, 
                      labels= color_labels) +
-  ggplot2::ylab("-log10 (p-value)") +
-  ggplot2::theme_bw() +
-  ggplot2::labs(colour = "P value") +
-  ggplot2::theme(legend.position = legend_position,
-    panel.grid.major = ggplot2::element_blank(),
-        panel.grid.minor = ggplot2::element_blank(),
-        panel.border = ggplot2::element_blank(),
-        axis.line = ggplot2::element_line(color = "black"),
-        plot.margin = ggplot2::margin(10, 10, 10, 10, "pt")) 
+  ylab("-log10 (p-value)") +
+  theme_bw() +
+  labs(colour = "P value") +
+  theme(legend.position = legend_position,
+    panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        axis.line = element_line(color = "black"),
+        plot.margin = margin(10, 10, 10, 10, "pt")) 
 
 # Add the title only if add_title is TRUE
 if (add_title) {
-  p_arch_leg <- p_arch_leg + ggplot2::ggtitle(plot_title)
+  p_arch_leg <- p_arch_leg + ggtitle(plot_title)
 }
 
 # Add the subtitle only if add_subtitle is TRUE
 if (add_subtitle) {
-  p_arch_leg <- p_arch_leg + ggplot2::labs(subtitle = plot_subtitle)
+  p_arch_leg <- p_arch_leg + labs(subtitle = plot_subtitle)
 }
 
 # Only show chromosome ticks if chr_ticks is TRUE
 if (chr_ticks) {
-  p_arch_leg <- p_arch_leg + ggplot2::scale_x_continuous(breaks = chromosome_ticks$mid_point, labels = chromosome_ticks$CHR) + ggplot2::xlab("Chromosome") 
+  p_arch_leg <- p_arch_leg + scale_x_continuous(breaks = chromosome_ticks$mid_point, labels = chromosome_ticks$CHR) + xlab("Chromosome") 
 }
 
 # Only show the legend if show_legend is TRUE
 if (!show_legend) {
-  p_arch_leg <- p_arch_leg + ggplot2::guides(color = "none") 
+  p_arch_leg <- p_arch_leg + guides(color = "none") 
 }
 
 # Set critical p-val line
 if (!is.null(crit_val_VSAT)) {
   p_arch_leg <- p_arch_leg + 
-    ggplot2::geom_hline(linetype="dotted", color = "#135775",
+    geom_hline(linetype="dotted", color = "#135775",
                yintercept=-log10(crit_val_VSAT)) +
-    ggplot2::geom_hline(linetype="dotted", color = "#f6a192",
+    geom_hline(linetype="dotted", color = "#f6a192",
                yintercept=-log10(crit_val_single_variant))
   
 }
@@ -429,14 +421,14 @@ if (!is.null(crit_val_VSAT)) {
 # label each p-val line
 if (!is.null(crit_val_VSAT)) {
   p_arch_leg <- p_arch_leg + 
-    ggplot2::geom_text(ggplot2::aes(x = max(merged_df$pos), y = (-log10(crit_val_VSAT)+0.3), 
+    geom_text(aes(x = max(merged_df$pos), y = (-log10(crit_val_VSAT)+0.3), 
                   label = "VSAT\nthreshold"), hjust = 1.2) +
-    ggplot2::geom_text(ggplot2::aes(x = max(merged_df$pos), y = (-log10(crit_val_single_variant)+0.3), 
+    geom_text(aes(x = max(merged_df$pos), y = (-log10(crit_val_single_variant)+0.3), 
                   label = "single-variant\nthreshold"), hjust = 1.2)
 }
 
 p_arch_leg
-ggplot2::ggsave(p_arch_leg, filename = output_path, width = fig_width, height = fig_height, device = file_type)
+ggsave(p_arch_leg, filename = output_path, width = fig_width, height = fig_height, device = file_type)
 
 
 # return the final plot
@@ -448,7 +440,7 @@ return(p_arch_leg)
 # # patch1 <- (p_arch_leg / p_raw)
 # patch1 <- (p_arch_leg | p_raw) + plot_annotation(tag_levels = 'A')
 # 
-# ggplot2::ggsave(patch1, filename = output_patch_jpg, width = 14, height = 9)
+# ggsave(patch1, filename = output_patch_jpg, width = 14, height = 9)
 # 
 # # return the final plot
 # return(p_arch_leg)

@@ -1,0 +1,100 @@
+
+R version 4.4.0 (2024-04-24) -- "Puppy Cup"
+Copyright (C) 2024 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "archipelago"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> library('archipelago')
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("archipelago_plot")
+> ### * archipelago_plot
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: archipelago_plot
+> ### Title: Archipelago Plot
+> ### Aliases: archipelago_plot
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D   # Load example data for df1 (VSAT) and df2 (individual variant)
+> ##D   data("vsat_pval")         # same structure as df1
+> ##D   data("variant_pval")      # same structure as df2
+> ##D 
+> ##D   # Basic usage with defaults
+> ##D   archipelago_plot(
+> ##D     df1 = vsat_pval,
+> ##D     df2 = variant_pval
+> ##D   )
+> ##D 
+> ##D   # Specify a built-in colour theme
+> ##D   archipelago_plot(
+> ##D     df1 = vsat_pval,
+> ##D     df2 = variant_pval,
+> ##D     color_theme = "alice"
+> ##D   )
+> ##D 
+> ##D   # More customised usage
+> ##D   output_path <- "./archipelago_plot_custom_color.pdf"
+> ##D   output_raw <- "./vsat_raw_plot.pdf"
+> ##D   color_labels <- c("Label_1", "Label_2", "Label_3", "Label_4")
+> ##D   custom_colors <- c("#9abfd8", "#cac1f3", "#371c4b", "#2a5b7f")
+> ##D 
+> ##D   archipelago_plot(
+> ##D     df1 = vsat_pval,
+> ##D     df2 = variant_pval,
+> ##D     add_title = TRUE,
+> ##D     plot_title = "My Archipelago Plot",
+> ##D     add_subtitle = TRUE,
+> ##D     plot_subtitle = "VSAT vs Single Variant",
+> ##D     show_legend = TRUE,
+> ##D     chr_ticks = FALSE,
+> ##D     point_size = 0.5,
+> ##D     color_theme = NULL,         # ignore built-in theme
+> ##D     custom_colors = custom_colors,
+> ##D     color_labels = color_labels,
+> ##D     crit_val_VSAT = 0.05 / 300, # for highlighting VSAT p-values
+> ##D     crit_val_single_variant = 5e-8, # typical single-variant threshold
+> ##D     output_path = output_path, 
+> ##D     output_raw = output_raw,   
+> ##D     file_type = "pdf"          # save as PDF instead of PNG
+> ##D   )
+> ## End(Not run)
+> 
+> 
+> 
+> ### * <FOOTER>
+> ###
+> cleanEx()
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  0.086 0.008 0.095 0 0 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')

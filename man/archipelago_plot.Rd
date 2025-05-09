@@ -3,38 +3,6 @@
 \name{archipelago_plot}
 \alias{archipelago_plot}
 \title{Archipelago Plot}
-\usage{
-archipelago_plot(
-  df1,
-  df2,
-  plot_title = "Archipelago Plot",
-  add_title = FALSE,
-  plot_subtitle =
-    "Variant Set Association Test\\nwith individual variant contributions\\nand contributions for significant VSAT",
-  add_subtitle = FALSE,
-  chr_ticks = TRUE,
-  show_legend = TRUE,
-  color_theme = NULL,
-  custom_colors = NULL,
-  color_labels = c("Chr: Individual p-val", "Chr: Individual p-val",
-    "Individual variant\\nfrom enriched VSAT", "VSAT p-val"),
-  crit_val_VSAT = NULL,
-  crit_val_single_variant = NULL,
-  point_size = 1,
-  point_size_large = 1,
-  fig_width = 8,
-  fig_height = 4,
-  raw_fig_width = 8,
-  raw_fig_height = 4,
-  output_path = "archipelago_plot",
-  output_raw = "archipelago_vsat_raw_plot",
-  file_type = "png",
-  alpha_point = 1,
-  alpha_seg = 0.3,
-  better_space = FALSE,
-  legend_position = "right"
-)
-}
 \arguments{
 \item{df1}{A dataframe of variant-set data.}
 
@@ -57,6 +25,8 @@ archipelago_plot(
 \item{custom_colors}{Vector of custom colours.}
 
 \item{color_labels}{Labels for the colour groups.}
+
+\item{crit_val}{Critical p-value threshold.}
 
 \item{point_size}{Size of the points.}
 
@@ -83,8 +53,6 @@ archipelago_plot(
 \item{better_space}{Use better_space = TRUE to make sure that x-axis chr do not squash.}
 
 \item{legend_position}{Default right, allows bottom top left right.}
-
-\item{crit_val}{Critical p-value threshold.}
 }
 \value{
 A ggplot object.
