@@ -1,6 +1,7 @@
 output
 images
 src_testing
+^cran-comments.md$
 ^CRAN-SUBMISSION$
 ^LICENSE\.md$
 ^\\.git$
@@ -9,4 +10,7 @@ src_testing
 ^\\.Rcheck$
 ^src_testing$
 ^validation$
+^docs$
+^revdep$
+
 
