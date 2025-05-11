@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">archipelago</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.9000</span>
       </span>
     </div>
 
@@ -46,27 +46,6 @@
     <p>Plot p-values from variant and variant-set tests.</p>
     </div>
 
-    <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">archipelago_plot</span><span class="op">(</span></span>
-<span>  <span class="va">df1</span>,</span>
-<span>  <span class="va">df2</span>,</span>
-<span>  plot_title <span class="op">=</span> <span class="st">"Archipelago Plot"</span>,</span>
-<span>  add_title <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  plot_subtitle <span class="op">=</span></span>
-<span>    <span class="st">"Variant Set Association Test\nwith individual variant contributions\nand contributions for significant VSAT"</span>,</span>
-<span>  add_subtitle <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  chr_ticks <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  show_legend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  color_theme <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  custom_colors <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  color_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Chr: Individual p-val"</span>, <span class="st">"Chr: Individual p-val"</span>,</span>
-<span>    <span class="st">"Individual variant\nfrom enriched VSAT"</span>, <span class="st">"VSAT p-val"</span><span class="op">)</span>,</span>
-<span>  crit_val <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  point_size <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  output_path <span class="op">=</span> <span class="st">"archipelago_plot.pdf"</span>,</span>
-<span>  output_raw <span class="op">=</span> <span class="st">"vsat_raw_plot.pdf"</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-    </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
@@ -124,12 +103,52 @@
 <dd><p>Size of the points.</p></dd>
 
 
+<dt id="arg-point-size-large">point_size_large<a class="anchor" aria-label="anchor" href="#arg-point-size-large"></a></dt>
+<dd><p>Size of the large points of interest such as VSAT.</p></dd>
+
+
+<dt id="arg-fig-width">fig_width<a class="anchor" aria-label="anchor" href="#arg-fig-width"></a></dt>
+<dd><p>Width of the archipelago plot.</p></dd>
+
+
+<dt id="arg-fig-height">fig_height<a class="anchor" aria-label="anchor" href="#arg-fig-height"></a></dt>
+<dd><p>Height of the archipelago plot.</p></dd>
+
+
+<dt id="arg-raw-fig-width">raw_fig_width<a class="anchor" aria-label="anchor" href="#arg-raw-fig-width"></a></dt>
+<dd><p>Width of the raw plot.</p></dd>
+
+
+<dt id="arg-raw-fig-height">raw_fig_height<a class="anchor" aria-label="anchor" href="#arg-raw-fig-height"></a></dt>
+<dd><p>Height of the raw plot.</p></dd>
+
+
 <dt id="arg-output-path">output_path<a class="anchor" aria-label="anchor" href="#arg-output-path"></a></dt>
 <dd><p>File path for the plot.</p></dd>
 
 
 <dt id="arg-output-raw">output_raw<a class="anchor" aria-label="anchor" href="#arg-output-raw"></a></dt>
 <dd><p>File path for the raw plot.</p></dd>
+
+
+<dt id="arg-file-type">file_type<a class="anchor" aria-label="anchor" href="#arg-file-type"></a></dt>
+<dd><p>Use .png, .jpg, or .pdf. Defaults to png. pdf is slow and large for many SNPs.</p></dd>
+
+
+<dt id="arg-alpha-point">alpha_point<a class="anchor" aria-label="anchor" href="#arg-alpha-point"></a></dt>
+<dd><p>Use the alpha_point value to set point transparency.</p></dd>
+
+
+<dt id="arg-alpha-seg">alpha_seg<a class="anchor" aria-label="anchor" href="#arg-alpha-seg"></a></dt>
+<dd><p>Use the alpha_segvalue to set line segment transparency.</p></dd>
+
+
+<dt id="arg-better-space">better_space<a class="anchor" aria-label="anchor" href="#arg-better-space"></a></dt>
+<dd><p>Use better_space = TRUE to make sure that x-axis chr do not squash.</p></dd>
+
+
+<dt id="arg-legend-position">legend_position<a class="anchor" aria-label="anchor" href="#arg-legend-position"></a></dt>
+<dd><p>Default right, allows bottom top left right.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -140,42 +159,47 @@
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span>  <span class="co"># Load test data for df1 and df2</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"vsat_pval"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"variant_pval"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># Load example data for df1 (VSAT) and df2 (individual variant)</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"vsat_pval"</span><span class="op">)</span>         <span class="co"># same structure as df1</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"variant_pval"</span><span class="op">)</span>      <span class="co"># same structure as df2</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co"># Use default settings</span></span></span>
-<span class="r-in"><span>  <span class="fu">archipelago_plot</span><span class="op">(</span><span class="va">vsat_pval</span>, <span class="va">variant_pval</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># Basic usage with defaults</span></span></span>
+<span class="r-in"><span>  <span class="fu">archipelago_plot</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    df1 <span class="op">=</span> <span class="va">vsat_pval</span>,</span></span>
+<span class="r-in"><span>    df2 <span class="op">=</span> <span class="va">variant_pval</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co"># Use the 'alice' colour theme</span></span></span>
-<span class="r-in"><span>  <span class="fu">archipelago_plot</span><span class="op">(</span><span class="va">vsat_pval</span>, <span class="va">variant_pval</span>, color_theme <span class="op">=</span> <span class="st">"alice"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># Specify a built-in colour theme</span></span></span>
+<span class="r-in"><span>  <span class="fu">archipelago_plot</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    df1 <span class="op">=</span> <span class="va">vsat_pval</span>,</span></span>
+<span class="r-in"><span>    df2 <span class="op">=</span> <span class="va">variant_pval</span>,</span></span>
+<span class="r-in"><span>    color_theme <span class="op">=</span> <span class="st">"alice"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span>  <span class="co"># Custom everything</span></span></span>
+<span class="r-in"><span>  <span class="co"># More customised usage</span></span></span>
 <span class="r-in"><span>  <span class="va">output_path</span> <span class="op">&lt;-</span> <span class="st">"./archipelago_plot_custom_color.pdf"</span></span></span>
 <span class="r-in"><span>  <span class="va">output_raw</span> <span class="op">&lt;-</span> <span class="st">"./vsat_raw_plot.pdf"</span></span></span>
 <span class="r-in"><span>  <span class="va">color_labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Label_1"</span>, <span class="st">"Label_2"</span>, <span class="st">"Label_3"</span>, <span class="st">"Label_4"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">custom_colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#9abfd8"</span>, <span class="st">"#cac1f3"</span>, <span class="st">"#371c4b"</span>, <span class="st">"#2a5b7f"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>  <span class="va">plot_title</span> <span class="op">&lt;-</span> <span class="st">"Title"</span></span></span>
-<span class="r-in"><span>  <span class="va">plot_subtitle</span> <span class="op">&lt;-</span> <span class="st">"Subtitle"</span></span></span>
-<span class="r-in"><span>  <span class="va">crit_val</span> <span class="op">&lt;-</span> <span class="fl">.05</span><span class="op">/</span><span class="fl">300</span></span></span>
-<span class="r-in"><span>  <span class="va">point_size</span> <span class="op">&lt;-</span> <span class="fl">.5</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="fu">archipelago_plot</span><span class="op">(</span></span></span>
 <span class="r-in"><span>    df1 <span class="op">=</span> <span class="va">vsat_pval</span>,</span></span>
 <span class="r-in"><span>    df2 <span class="op">=</span> <span class="va">variant_pval</span>,</span></span>
 <span class="r-in"><span>    add_title <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>    plot_title <span class="op">=</span> <span class="va">plot_title</span>,</span></span>
+<span class="r-in"><span>    plot_title <span class="op">=</span> <span class="st">"My Archipelago Plot"</span>,</span></span>
 <span class="r-in"><span>    add_subtitle <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>    plot_subtitle <span class="op">=</span> <span class="va">plot_subtitle</span>,</span></span>
+<span class="r-in"><span>    plot_subtitle <span class="op">=</span> <span class="st">"VSAT vs Single Variant"</span>,</span></span>
 <span class="r-in"><span>    show_legend <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>    crit_val <span class="op">=</span> <span class="va">crit_val</span>,</span></span>
-<span class="r-in"><span>    point_size <span class="op">=</span> <span class="va">point_size</span>,</span></span>
 <span class="r-in"><span>    chr_ticks <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>    show_legend <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>    point_size <span class="op">=</span> <span class="fl">0.5</span>,</span></span>
+<span class="r-in"><span>    color_theme <span class="op">=</span> <span class="cn">NULL</span>,         <span class="co"># ignore built-in theme</span></span></span>
 <span class="r-in"><span>    custom_colors <span class="op">=</span> <span class="va">custom_colors</span>,</span></span>
 <span class="r-in"><span>    color_labels <span class="op">=</span> <span class="va">color_labels</span>,</span></span>
-<span class="r-in"><span>    output_path <span class="op">=</span> <span class="va">output_path</span>,</span></span>
-<span class="r-in"><span>    output_raw <span class="op">=</span> <span class="va">output_raw</span></span></span>
+<span class="r-in"><span>    crit_val_VSAT <span class="op">=</span> <span class="fl">0.05</span> <span class="op">/</span> <span class="fl">300</span>, <span class="co"># for highlighting VSAT p-values</span></span></span>
+<span class="r-in"><span>    crit_val_single_variant <span class="op">=</span> <span class="fl">5e-8</span>, <span class="co"># typical single-variant threshold</span></span></span>
+<span class="r-in"><span>    output_path <span class="op">=</span> <span class="va">output_path</span>, </span></span>
+<span class="r-in"><span>    output_raw <span class="op">=</span> <span class="va">output_raw</span>,   </span></span>
+<span class="r-in"><span>    file_type <span class="op">=</span> <span class="st">"pdf"</span>          <span class="co"># save as PDF instead of PNG</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
