@@ -1,0 +1,21 @@
+Package: archipelago
+Title: Method for Illustration of Variant Set Association Test
+        Statistics
+Version: 0.1.0
+Authors@R: person("Dylan", "Lawless", email = "dylan.lawless@protonmail.com", role = c("aut", "cre"), comment = c(ORCID = "https://orcid.org/0000-0001-8496-3725"))
+Author: Dylan Lawless [aut, cre] (<https://orcid.org/0000-0001-8496-3725>)
+Maintainer: Dylan Lawless <dylan.lawless@protonmail.com>
+Description: Provides a graphical method for interpreting both VSAT p-values and individual variant contributions. The Archipelago method assigns a meaningful genomic coordinate to the VSAT p- value, enabling its simultaneous visualization alongside individual variant p-values. This results in an intuitive and rich illustration akin to an archipelago of clustered islands, enhancing the understanding of both collective and individual impacts of variants. The Archipelago plot is applicable in any genetic association study that uses variant collapse to evaluate both individual variants and variant sets to  facilitate clear communication of complex genetic data. By integrating two dimensions of genetic data into a single visualization, VSAT results can be easily read and aid in identification of potential causal variants in variant sets such as protein pathways.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Language: en-US
+Imports: ggplot2, dplyr
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Suggests: testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Depends: R (>= 4.1.0)
+LazyData: true
+NeedsCompilation: no
+Packaged: 2025-05-11 17:41:44 UTC; akira
+Built: R 4.4.0; ; 2025-05-11 17:42:38 UTC; unix

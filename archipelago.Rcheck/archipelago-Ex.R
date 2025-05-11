@@ -1,0 +1,93 @@
+pkgname <- "archipelago"
+source(file.path(R.home("share"), "R", "examples-header.R"))
+options(warn = 1)
+base::assign(".ExTimings", "archipelago-Ex.timings", pos = 'CheckExEnv')
+base::cat("name\tuser\tsystem\telapsed\n", file=base::get(".ExTimings", pos = 'CheckExEnv'))
+base::assign(".format_ptime",
+function(x) {
+  if(!is.na(x[4L])) x[1L] <- x[1L] + x[4L]
+  if(!is.na(x[5L])) x[2L] <- x[2L] + x[5L]
+  options(OutDec = '.')
+  format(x[1L:3L], digits = 7L)
+},
+pos = 'CheckExEnv')
+
+### * </HEADER>
+library('archipelago')
+
+base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
+cleanEx()
+nameEx("archipelago_plot")
+### * archipelago_plot
+
+flush(stderr()); flush(stdout())
+
+base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+### Name: archipelago_plot
+### Title: Archipelago Plot
+### Aliases: archipelago_plot
+
+### ** Examples
+
+## Not run: 
+##D   # Load example data for df1 (VSAT) and df2 (individual variant)
+##D   data("vsat_pval")         # same structure as df1
+##D   data("variant_pval")      # same structure as df2
+##D 
+##D   # Basic usage with defaults
+##D   archipelago_plot(
+##D     df1 = vsat_pval,
+##D     df2 = variant_pval
+##D   )
+##D 
+##D   # Specify a built-in colour theme
+##D   archipelago_plot(
+##D     df1 = vsat_pval,
+##D     df2 = variant_pval,
+##D     color_theme = "alice"
+##D   )
+##D 
+##D   # More customised usage
+##D   output_path <- "./archipelago_plot_custom_color.pdf"
+##D   output_raw <- "./vsat_raw_plot.pdf"
+##D   color_labels <- c("Label_1", "Label_2", "Label_3", "Label_4")
+##D   custom_colors <- c("#9abfd8", "#cac1f3", "#371c4b", "#2a5b7f")
+##D 
+##D   archipelago_plot(
+##D     df1 = vsat_pval,
+##D     df2 = variant_pval,
+##D     add_title = TRUE,
+##D     plot_title = "My Archipelago Plot",
+##D     add_subtitle = TRUE,
+##D     plot_subtitle = "VSAT vs Single Variant",
+##D     show_legend = TRUE,
+##D     chr_ticks = FALSE,
+##D     point_size = 0.5,
+##D     color_theme = NULL,         # ignore built-in theme
+##D     custom_colors = custom_colors,
+##D     color_labels = color_labels,
+##D     crit_val_VSAT = 0.05 / 300, # for highlighting VSAT p-values
+##D     crit_val_single_variant = 5e-8, # typical single-variant threshold
+##D     output_path = output_path, 
+##D     output_raw = output_raw,   
+##D     file_type = "pdf"          # save as PDF instead of PNG
+##D   )
+## End(Not run)
+
+
+
+base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+base::cat("archipelago_plot", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+### * <FOOTER>
+###
+cleanEx()
+options(digits = 7L)
+base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+grDevices::dev.off()
+###
+### Local variables: ***
+### mode: outline-minor ***
+### outline-regexp: "\\(> \\)?### [*]+" ***
+### End: ***
+quit('no')
