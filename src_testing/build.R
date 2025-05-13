@@ -15,13 +15,15 @@ if (requireNamespace("pkgdown", quietly = TRUE)) {
   pkgdown::build_site()
 }
 
+# .spelling
+devtools::spell_check()
+
 # Build CRAN tarball (goes to parent dir)
 devtools::build(path = "..")
 
 # Then check the tarball manually:
-
-ls -lh ../archipelago_0.1.0.tar.gz
-R CMD check ../archipelago_0.1.0.tar.gz --as-cran
+# ls -lh ../archipelago_0.1.0.tar.gz
+# R CMD check ../archipelago_0.1.0.tar.gz --as-cran
 
 # If that’s all clean and you’re ready to submit:
 
