@@ -28,6 +28,8 @@
 #' @param alpha_seg Use the alpha_segvalue to set line segment transparency. 
 #' @param better_space Use better_space = TRUE to make sure that x-axis chr do not squash. 
 #' @param legend_position Default right, allows bottom top left right.
+#' @param annotate_thresholds Logical; if TRUE, annotate plot with VSAT and single-variant p-value thresholds.
+#'
 #'
 #' @return A ggplot object.
 #'
@@ -108,8 +110,9 @@ archipelago_plot <- function(df1, df2,
                              file_type = "png",
                              alpha_point = 1,
                              alpha_seg = 0.3,
-                             better_space = FALSE,
-                             legend_position = "right"
+                             better_space = TRUE,
+                             legend_position = "right",
+                             annotate_thresholds = TRUE
                              ) {
 
 # library(ggplot2)
@@ -124,7 +127,8 @@ archipelago_plot <- function(df1, df2,
     output_path <- paste0(output_path, ".", file_type)
   }
   
-  
+
+print("Running Archipelago")
 print("Input df1 is for VSAT: set_ID and P")
 print("Input df2 is for SNP: set_ID, BP, P, CHR, SNP")
 
@@ -358,17 +362,55 @@ color_themes <- list(
 )
 
 # Check if custom_colors is provided, otherwise use color_theme or default
-if (!missing(custom_colors)) {
-  colors <- custom_colors
-} else if (!missing(color_theme) && color_theme %in% names(color_themes)) {
-  colors <- color_themes[[color_theme]]
-} else {
-  colors <- color_themes[['lawless']] # default
-}
+# if (!missing(custom_colors)) {
+#   colors <- custom_colors
+# } else if (!missing(color_theme) && color_theme %in% names(color_themes)) {
+#   colors <- color_themes[[color_theme]]
+# } else {
+#   colors <- color_themes[['lawless']] # default
+# }
+# 
 
+# Check if custom_colors is valid
+if (!is.null(custom_colors) && length(custom_colors) == 4) {
+  colors <- custom_colors
+} else if (!is.null(color_theme) && color_theme %in% names(color_themes)) {
+  theme_colors <- color_themes[[color_theme]]
+  if (length(theme_colors) == 4) {
+    colors <- theme_colors
+  } else {
+    message("Selected theme does not provide 4 colours. Using fallback 'lawless'.")
+    colors <- color_themes[['lawless']]
+  }
+} else {
+  colors <- color_themes[['lawless']] # fallback
+}
 
 # Create a data frame with only the "variant_set" points
 variant_set_points <- merged_df[merged_df$metric == "variant_set", ]
+
+used_color_levels <- unique(merged_df$color_condition)
+colors <- setNames(colors, c("Chr_A", "Chr_B", "condition_met", "variant_set"))
+colors <- colors[used_color_levels]
+
+if (!is.null(color_labels) && length(color_labels) == 4) {
+  color_labels <- setNames(color_labels, c("Chr_A", "Chr_B", "condition_met", "variant_set"))
+  color_labels <- color_labels[used_color_levels]
+} else {
+  color_labels <- used_color_levels
+}
+
+# print("color levels used:")
+# print(used_color_levels)
+# print("final colors:")
+# print(colors)
+# print("final labels:")
+# print(color_labels)
+
+# expand limit for threhshold annotation
+y_max <- max(c(merged_df$P, -log10(crit_val_VSAT), -log10(crit_val_single_variant)), na.rm = TRUE)
+y_buffer <- 0.5
+
 
 p_arch_leg <- 
   ggplot2::ggplot() +
@@ -386,7 +428,8 @@ p_arch_leg <-
              ggplot2::aes(x = pos, y = P, color = color_condition), size = point_size, alpha = alpha_point) +
    ggplot2::scale_color_manual(values = colors, 
                      labels= color_labels) +
-  ggplot2::ylab("-log10 (p-value)") +
+  ggplot2::ylab("-log10 (p-value)") + 
+  ggplot2::scale_y_continuous(limits = c(0, y_max + y_buffer)) +
   ggplot2::theme_bw() +
   ggplot2::labs(colour = "P value") +
   ggplot2::theme(legend.position = legend_position,
@@ -427,12 +470,20 @@ if (!is.null(crit_val_VSAT)) {
 }
 
 # label each p-val line
-if (!is.null(crit_val_VSAT)) {
+# if (!is.null(crit_val_VSAT)) {
+#   p_arch_leg <- p_arch_leg + 
+#     ggplot2::geom_text(ggplot2::aes(x = max(merged_df$pos), y = (-log10(crit_val_VSAT)+0.3), 
+#                   label = "VSAT\nthreshold"), hjust = 1.2) +
+#     ggplot2::geom_text(ggplot2::aes(x = max(merged_df$pos), y = (-log10(crit_val_single_variant)+0.3), 
+#                   label = "single-variant\nthreshold"), hjust = 1.2)
+# }
+
+if (annotate_thresholds && !is.null(crit_val_VSAT) && !is.null(crit_val_single_variant)) {
   p_arch_leg <- p_arch_leg + 
-    ggplot2::geom_text(ggplot2::aes(x = max(merged_df$pos), y = (-log10(crit_val_VSAT)+0.3), 
-                  label = "VSAT\nthreshold"), hjust = 1.2) +
-    ggplot2::geom_text(ggplot2::aes(x = max(merged_df$pos), y = (-log10(crit_val_single_variant)+0.3), 
-                  label = "single-variant\nthreshold"), hjust = 1.2)
+    ggplot2::geom_text(ggplot2::aes(x = max(merged_df$pos), y = (-log10(crit_val_VSAT) + 0.3),
+                                    label = "VSAT\nthreshold"), hjust = 1.2) +
+    ggplot2::geom_text(ggplot2::aes(x = max(merged_df$pos), y = (-log10(crit_val_single_variant) + 0.3),
+                                    label = "single-variant\nthreshold"), hjust = 1.2)
 }
 
 p_arch_leg
