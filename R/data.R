@@ -3,23 +3,24 @@
 #' Example variant-level p-values from a genome-wide association study.
 #'
 #' @format A data frame with columns:
-#' \describe{
-#'   \item{set_ID}{Set ID}
-#'   \item{BP}{Base pair position}
-#'   \item{P}{p-value}
-#'   \item{CHR}{Chromosome}
-#'   \item{SNP}{SNP ID}
+#' \itemize{
+#'   \item set_ID
+#'   \item BP
+#'   \item P
+#'   \item CHR
+#'   \item SNP
 #' }
-"df2"
+"variant_pval"
+
 
 #' Example variant set data
 #'
 #' Example variant set-level p-values.
 #'
 #' @format A data frame with columns:
-#' \describe{
-#'   \item{set_ID}{Set ID}
-#'   \item{P}{p-value}
+#' \itemize{
+#'   \item set_ID
+#'   \item P
 #' }
 "vsat_pval"
 

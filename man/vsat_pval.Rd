@@ -6,9 +6,9 @@
 \title{Example variant set data}
 \format{
 A data frame with columns:
-\describe{
-\item{set_ID}{Set ID}
-\item{P}{p-value}
+\itemize{
+\item set_ID
+\item P
 }
 }
 \usage{

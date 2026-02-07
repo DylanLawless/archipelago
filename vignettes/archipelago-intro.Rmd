@@ -1,0 +1,134 @@
+---
+title: "Archipelago: Visualising Variant Set Association Results"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Archipelago: Visualising Variant Set Association Results}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 9,
+  fig.height = 5,
+  out.width = "100%"
+)
+
+
+library(archipelago)
+```
+
+## Overview
+
+The `archipelago` package provides a graphical method for joint
+visualisation of variant-level and variant-set association results.
+
+The Archipelago plot displays variant set p-values together with
+individual variant signals within a unified genomic coordinate
+system.
+
+## Example data
+
+The package provides example datasets.
+
+```{r}
+data("vsat_pval", package = "archipelago")
+data("variant_pval", package = "archipelago")
+
+head(vsat_pval)
+head(variant_pval)
+```
+
+## Basic Archipelago plot
+
+A plot can be generated directly using default settings.
+Temporary output paths are used so that no files are written to the package.
+
+```{r}
+p_basic <- archipelago_plot(
+  df1 = vsat_pval,
+  df2 = variant_pval,
+  output_path = tempfile(),
+  output_raw  = tempfile()
+)
+
+p_basic
+```
+
+This produces the standard Archipelago plot with automatic colouring
+and layout.
+
+## Using colour themes
+
+Built-in colour themes allow rapid visual changes.
+
+```{r}
+p_theme <- archipelago_plot(
+  df1 = vsat_pval,
+  df2 = variant_pval,
+  color_theme = "alice",
+  output_path = tempfile(),
+  output_raw  = tempfile()
+)
+
+p_theme
+```
+
+Several predefined themes are available.
+
+## Fully customised plot
+
+All visual elements can be customised. A typical advanced use case:
+
+```{r}
+custom_colors <- c("#9abfd8", "#cac1f3", "#371c4b", "#2a5b7f")
+
+p_custom <- archipelago_plot(
+  df1 = vsat_pval,
+  df2 = variant_pval,
+  add_title = TRUE,
+  plot_title = "Custom Archipelago Plot",
+  add_subtitle = TRUE,
+  plot_subtitle = "Variant set and variant signals",
+  show_legend = TRUE,
+  legend_position = "bottom",
+  chr_ticks = TRUE,
+  point_size = 0.6,
+  point_size_large = 1.2,
+  custom_colors = custom_colors,
+  color_labels = c(
+    "Chromosome A",
+    "Chromosome B",
+    "Highlighted variants",
+    "Variant set result"
+  ),
+  crit_val_VSAT = 0.05 / 300,
+  crit_val_single_variant = 5e-8,
+  annotate_thresholds = TRUE,
+  fig_width = 10,
+  fig_height = 5,
+  output_path = tempfile(),
+  output_raw  = tempfile(),
+  file_type = "pdf"
+)
+
+p_custom
+```
+
+This example demonstrates full control over layout, colours,
+thresholds, labels, and output.
+
+## Output files
+
+Plots are saved automatically using the specified output paths and
+formats. In this vignette, temporary paths are used so files are not
+persisted.
+
+## Summary
+
+Archipelago provides a compact visual summary linking variant-level
+and variant-set association results, supporting interpretation of
+aggregation analyses in genetic studies.
+

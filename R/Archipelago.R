@@ -33,58 +33,19 @@
 #'
 #' @return A ggplot object.
 #'
-#' @examples
-#' \dontrun{
-#'   # Load example data for df1 (VSAT) and df2 (individual variant)
-#'   data("vsat_pval")         # same structure as df1
-#'   data("variant_pval")      # same structure as df2
-#'
-#'   # Basic usage with defaults
-#'   archipelago_plot(
-#'     df1 = vsat_pval,
-#'     df2 = variant_pval
-#'   )
-#'
-#'   # Specify a built-in colour theme
-#'   archipelago_plot(
-#'     df1 = vsat_pval,
-#'     df2 = variant_pval,
-#'     color_theme = "alice"
-#'   )
-#'
-#'   # More customised usage
-#'   output_path <- "./archipelago_plot_custom_color.pdf"
-#'   output_raw <- "./vsat_raw_plot.pdf"
-#'   color_labels <- c("Label_1", "Label_2", "Label_3", "Label_4")
-#'   custom_colors <- c("#9abfd8", "#cac1f3", "#371c4b", "#2a5b7f")
-#'
-#'   archipelago_plot(
-#'     df1 = vsat_pval,
-#'     df2 = variant_pval,
-#'     add_title = TRUE,
-#'     plot_title = "My Archipelago Plot",
-#'     add_subtitle = TRUE,
-#'     plot_subtitle = "VSAT vs Single Variant",
-#'     show_legend = TRUE,
-#'     chr_ticks = FALSE,
-#'     point_size = 0.5,
-#'     color_theme = NULL,         # ignore built-in theme
-#'     custom_colors = custom_colors,
-#'     color_labels = color_labels,
-#'     crit_val_VSAT = 0.05 / 300, # for highlighting VSAT p-values
-#'     crit_val_single_variant = 5e-8, # typical single-variant threshold
-#'     output_path = output_path, 
-#'     output_raw = output_raw,   
-#'     file_type = "pdf"          # save as PDF instead of PNG
-#'   )
-#' }
+#' @examplesIf interactive()
+#' data("vsat_pval")
+#' data("variant_pval")
+#' archipelago_plot(vsat_pval, variant_pval)
+
 utils::globalVariables(c(
-  "aes", "color_group", "metric", "CHR", "BP", "width",
+  "color_group", "metric", "CHR", "BP", "width",
   "new_pos_in_chr", "CHR_order", "pos", "set_ID", "P",
   "color_condition", "pos_variant_set", "pos_variant",
   "P_variant_set", "P_variant", "quantile"
 ))
 #'
+#' @importFrom stats setNames
 #' @export
 
 archipelago_plot <- function(df1, df2, 
@@ -128,21 +89,36 @@ archipelago_plot <- function(df1, df2,
   }
   
 
-print("Running Archipelago")
-print("Input df1 is for VSAT: set_ID and P")
-print("Input df2 is for SNP: set_ID, BP, P, CHR, SNP")
+message("Running Archipelago")
+message("Input df1 is for VSAT: set_ID and P")
+message("Input df2 is for SNP: set_ID, BP, P, CHR, SNP")
 
+required_df1 <- c("set_ID", "P")
+required_df2 <- c("set_ID", "BP", "CHR", "P")
 
-if (!"P" %in% colnames(df1) || nrow(df1) < 1) {
-  stop("df1 does not have a 'P' column or is empty.")
+if (!all(required_df1 %in% names(df1)) || nrow(df1) < 1) {
+  stop("df1 must contain columns: set_ID, P and must not be empty.")
 }
-if (!"P" %in% colnames(df2) || nrow(df2) < 1) {
-  stop("df2 does not have a 'P' column or is empty.")
+
+if (!all(required_df2 %in% names(df2)) || nrow(df2) < 1) {
+  stop("df2 must contain columns: set_ID, BP, CHR, P and must not be empty.")
 }
 
 # Ensure P columns are numeric
 df1$P <- as.numeric(df1$P)
 df2$P <- as.numeric(df2$P)
+
+
+# if (!"P" %in% colnames(df1) || nrow(df1) < 1) {
+#   stop("df1 does not have a 'P' column or is empty.")
+# }
+# if (!"P" %in% colnames(df2) || nrow(df2) < 1) {
+#   stop("df2 does not have a 'P' column or is empty.")
+# }
+#
+# # Ensure P columns are numeric
+# df1$P <- as.numeric(df1$P)
+# df2$P <- as.numeric(df2$P)
 
 
 # The example data was from plink and skat. It was then saved to Rdata with
@@ -246,8 +222,20 @@ variant_set_sorted <- merged_df |>
   dplyr::arrange(pos)
 
 # create a sequence of evenly spaced numbers across the range of all "pos" values
-even_pos <- seq(from = min(merged_df$pos),
-                to = max(merged_df$pos),
+# even_pos <- seq(from = min(merged_df$pos),
+#                 to = max(merged_df$pos),
+#                 length.out = nrow(variant_set_sorted))
+
+pos_min <- min(merged_df$pos, na.rm = TRUE)
+pos_max <- max(merged_df$pos, na.rm = TRUE)
+
+if (!is.finite(pos_min) || !is.finite(pos_max)) {
+  pos_min <- 1
+  pos_max <- nrow(variant_set_sorted)
+}
+
+even_pos <- seq(from = pos_min,
+                to = pos_max,
                 length.out = nrow(variant_set_sorted))
 
 # assign these evenly spaced numbers to the "pos" column of the "variant_set" group
@@ -400,12 +388,12 @@ if (!is.null(color_labels) && length(color_labels) == 4) {
   color_labels <- used_color_levels
 }
 
-# print("color levels used:")
-# print(used_color_levels)
-# print("final colors:")
-# print(colors)
-# print("final labels:")
-# print(color_labels)
+# message("color levels used:")
+# message(used_color_levels)
+# message("final colors:")
+# message(colors)
+# message("final labels:")
+# message(color_labels)
 
 # expand limit for threhshold annotation
 y_max <- max(c(merged_df$P, -log10(crit_val_VSAT), -log10(crit_val_single_variant)), na.rm = TRUE)

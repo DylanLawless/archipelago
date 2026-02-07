@@ -53,6 +53,8 @@
 \item{better_space}{Use better_space = TRUE to make sure that x-axis chr do not squash.}
 
 \item{legend_position}{Default right, allows bottom top left right.}
+
+\item{annotate_thresholds}{Logical; if TRUE, annotate plot with VSAT and single-variant p-value thresholds.}
 }
 \value{
 A ggplot object.
@@ -61,48 +63,9 @@ A ggplot object.
 Plot p-values from variant and variant-set tests.
 }
 \examples{
-\dontrun{
-  # Load example data for df1 (VSAT) and df2 (individual variant)
-  data("vsat_pval")         # same structure as df1
-  data("variant_pval")      # same structure as df2
-
-  # Basic usage with defaults
-  archipelago_plot(
-    df1 = vsat_pval,
-    df2 = variant_pval
-  )
-
-  # Specify a built-in colour theme
-  archipelago_plot(
-    df1 = vsat_pval,
-    df2 = variant_pval,
-    color_theme = "alice"
-  )
-
-  # More customised usage
-  output_path <- "./archipelago_plot_custom_color.pdf"
-  output_raw <- "./vsat_raw_plot.pdf"
-  color_labels <- c("Label_1", "Label_2", "Label_3", "Label_4")
-  custom_colors <- c("#9abfd8", "#cac1f3", "#371c4b", "#2a5b7f")
-
-  archipelago_plot(
-    df1 = vsat_pval,
-    df2 = variant_pval,
-    add_title = TRUE,
-    plot_title = "My Archipelago Plot",
-    add_subtitle = TRUE,
-    plot_subtitle = "VSAT vs Single Variant",
-    show_legend = TRUE,
-    chr_ticks = FALSE,
-    point_size = 0.5,
-    color_theme = NULL,         # ignore built-in theme
-    custom_colors = custom_colors,
-    color_labels = color_labels,
-    crit_val_VSAT = 0.05 / 300, # for highlighting VSAT p-values
-    crit_val_single_variant = 5e-8, # typical single-variant threshold
-    output_path = output_path, 
-    output_raw = output_raw,   
-    file_type = "pdf"          # save as PDF instead of PNG
-  )
-}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
+data("vsat_pval")
+data("variant_pval")
+archipelago_plot(vsat_pval, variant_pval)
+\dontshow{\}) # examplesIf}
 }
