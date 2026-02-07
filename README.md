@@ -1,12 +1,10 @@
 # Archipelago plot
 
+<img src="man/figures/logo.png" width="200px" align="right"/>
+
 ## Summary and illustration of variant set association test statistics
 
 Variant set association tests (VSAT), particularly those incorporating minor allele frequency variants, have become invaluable in genetic association studies by allowing robust statistical analysis with variant collapse. Unlike single variant tests, VSAT statistics cannot be assigned to a genomic coordinate for visual interpretation by default. To address these challenges, we introduce the Archipelago plot, a graphical method for interpreting both VSAT p-values and individual variant contributions. The Archipelago method assigns a meaningful genomic coordinate to the VSAT p-value, enabling its simultaneous visualization alongside individual variant p-values. This results in an intuitive and rich illustration akin to an archipelago of clustered islands, enhancing the understanding of both collective and individual impacts of variants. The Archipelago plot is applicable in any genetic association study that uses variant collapse to evaluate both individual variants and variant sets, and its customizability facilitates clear communication of complex genetic data. By integrating two dimensions of genetic data into a single visualization, VSAT results can be easily read and aid in identification of potential causal variants in variant sets such as protein pathways.
-
-![Archipelago cover image](./images/DALLE_Archipelago.jpg)
-
-![Default plot image](./images/Archipelago_plot_5kvar_250set_legend_v1.jpg)
 
 ## How to
 
@@ -121,9 +119,6 @@ install.packages("/path/to/your/package/MyPackage.tar.gz", repos = NULL, type = 
 An example of the protein pathway set IDs can be found at <https://github.com/DylanLawless/ProteoMCLustR/tree/main/data/ppi_examples> where we have a numeric pathway ID for each ensemble gene name, using MCL clustering on STRINGdb.
 
 
-## Logo
-
-![Logo image](./images/archipelago_logo_v2.jpg)
 
 ## Citation
 
